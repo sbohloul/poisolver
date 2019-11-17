@@ -1,15 +1,35 @@
 
 #define ABS(A) ((A) >=0.0 ? (A) : -(A))
 
+static double *getmem(int nx, int ny){
+  
+  double *result = NULL;
+  result = (double *)malloc(sizeof(double) * nx *ny);
+  return result;
+}
+
+static void mem_zero(void *A, long int size){
+  if (A){
+    unsigned char *ms = (unsigned char *)A;
+    for (long int i=0; i < size;++i){
+      *ms = 0;
+      ms++;
+    }
+  }
+}
+
+
 static void mem_copy(void *A, void *B, long int size){
+
+  if (A && B){
   
-  unsigned char *ms = (unsigned char *)A;
-  unsigned char *mt = (unsigned char *)B;
-  
-  for (long int i=0; i < size;++i){
-    *mt = *ms;
-    mt++;
-    ms++;
+    unsigned char *ms = (unsigned char *)A;
+    unsigned char *mt = (unsigned char *)B;
+    for (long int i=0; i < size;++i){
+      *mt = *ms;
+      mt++;
+      ms++;
+    }
   }
 }
 
@@ -45,7 +65,7 @@ static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double 
     }
     verr = vsum / (double)(nc);
     if (verr <= err) running = 0;
-    mem_copy(A, B, nx *ny *sizeof(double));
+    mem_copy(B, A, nx *ny *sizeof(double));
   }
   
   mem_copy(B, A, nx *ny *sizeof(double));
