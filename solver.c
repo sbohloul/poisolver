@@ -1,6 +1,19 @@
 
 #define ABS(A) ((A) >=0.0 ? (A) : -(A))
 
+static void mem_copy(void *A, void *B, long int size){
+  
+  unsigned char *ms = (unsigned char *)A;
+  unsigned char *mt = (unsigned char *)B;
+  
+  for (long int i=0; i < size;++i){
+    *mt = *ms;
+    mt++;
+    ms++;
+  }
+}
+
+
 static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double dx, double err){
   
 #define EM(i,j) A[j *nx +i]
@@ -11,6 +24,9 @@ static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double 
   double vsum = 0.0;
   int nc      = 0;
   double verr = 0.0; 
+
+  mem_copy(A, B, nx *ny *sizeof(double));
+
   
   for (;running;){
     for (int j= 1; j < ny -1;++j){
@@ -29,6 +45,7 @@ static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double 
     }
     verr = vsum / (double)(nc);
     if (verr <= err) running = 0;
+    mem_copy(A, B, nx *ny *sizeof(double));
   }
   
 #undef EM
