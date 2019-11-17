@@ -13,7 +13,6 @@ static void mem_copy(void *A, void *B, long int size){
   }
 }
 
-
 static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double dx, double err){
   
 #define EM(i,j) A[j *nx +i]
@@ -27,16 +26,17 @@ static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double 
 
   mem_copy(A, B, nx *ny *sizeof(double));
 
-  
   for (;running;){
     for (int j= 1; j < ny -1;++j){
       for (int i= 1; i < nx -1;++i){
-	FM(i,j) = (EM(i,j+1) + EM(i+1,j) + EM(i-1,j) + EM(i,j-1) -RM(i,j) * dx * dx) * 0.25;
+	FM(i,j) = (EM(i,j+1) + EM(i+1,j) + EM(i-1,j) + EM(i,j-1) -RM(i,j) * dx * dx) * 0.250;
       }
     }
+
     vsum = 0.0;
     nc   = 0;
     verr = 0.0; 
+
     for (int j= 1; j < ny -1;++j){
       for (int i= 1; i < nx -1;++i){
 	vsum += ABS((FM(i,j) -EM(i,j)));
@@ -48,9 +48,9 @@ static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double 
     mem_copy(A, B, nx *ny *sizeof(double));
   }
   
+  mem_copy(B, A, nx *ny *sizeof(double));
 #undef EM
 #undef FM
 #undef RM
-
 
 }
