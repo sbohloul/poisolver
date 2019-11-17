@@ -1,7 +1,7 @@
 
 #define ABS(A) ((A) >=0.0 ? (A) : -(A))
 
-static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double err){
+static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double dx, double err){
   
 #define EM(i,j) A[j *nx +i]
 #define FM(i,j) B[j *nx +i]
@@ -15,7 +15,7 @@ static void iter_jacobi(double *A, double *B, double *R, int nx, int ny, double 
   for (;running;){
     for (int j= 1; j < ny -1;++j){
       for (int i= 1; i < nx -1;++i){
-	FM(i,j) = (EM(i,j+1) + EM(i+1,j) + EM(i-1,j) + EM(i,j-1) -RM(i,j)) * 0.25;
+	FM(i,j) = (EM(i,j+1) + EM(i+1,j) + EM(i-1,j) + EM(i,j-1) -RM(i,j) * dx * dx) * 0.25;
       }
     }
     vsum = 0.0;
