@@ -1,34 +1,13 @@
+'''Testing finite difference operator
+    d      : d
+    p      : puracy
+    method : forward (ffd), backward (bfd), center (cfd)    
+'''    
+
+import pytest
 import numpy as np
-from ..diffoper import findifcoef, genderoper
+from ..diffoper import genderoper
 
-
-def test_findifcoef():
-    "Finite difference coefficients for various stencils."
-
-    # forward fd
-    d, p = 3, 1     # order, accuracy
-    n = d + p - 1
-    sten = range(n+1)
-    coefCalc = findifcoef(sten, d)
-    coefExpc = np.array([-1, 3, -3, 1])/6
-    assert np.allclose(coefCalc, coefExpc)
-
-    # centeral fd
-    d, p = 3, 2     # order, accuracy
-    n = d + p - 1
-    n = n//2
-    sten = range(-n, n+1)
-    coefCalc = findifcoef(sten, d)
-    coefExpc = np.array([-1, 2, 0, -2, 1])/12
-    assert np.allclose(coefCalc, coefExpc)
-
-    # backward fd
-    d, p = 4, 1     # order, accuracy
-    n = d + p - 1
-    sten = range(0, -(n+1), -1)
-    coefCalc = findifcoef(sten, d)
-    coefExpc = np.array([1, -4, 6, -4, 1])/24
-    assert np.allclose(coefCalc, coefExpc)
 
 def test_genderoper_3D_array():
     "Finite difference derivatives for a 3D array."
@@ -42,7 +21,6 @@ def test_genderoper_3D_array():
     d3fdxdydz = (-2*X) * (-2*Y) * (-2*Z) * ff
     d3fdx2dy = (4*Y - 8*X**2*Y) * ff 
 
-    # Create derivative operators
     # ddx
     axis, d, p = 0, 1, 8
     ddx = genderoper(d, p, h0, axis)
@@ -56,7 +34,6 @@ def test_genderoper_3D_array():
     axis, d, p = 2, 1, 8    
     ddz = genderoper(d, p, h2, axis)
 
-    # Take numerical derivatives and check the accuracy  
     # d3fdxdydz
     numder = ddz(ddy(ddx(ff)))
     assert np.allclose(d3fdxdydz, numder, rtol=1e-4)  

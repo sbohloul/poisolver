@@ -23,11 +23,11 @@ def findifcoef(sten, d):
     --------
     2nd order center finite difference coefficients for [0, 1, 2]:
 
-    >>> findifcoef([0, 1, 2], 2)
+    >>> findifcoef([-1, 0, 1], 2)
         [ 1. -2.  1.]
     """
 
-    assert d < len(sten), "Order of derivative should be smaller then stencil's length!"  
+    assert d < len(sten), "Order of derivative should be smaller than stencil's length"  
 
     # size of the stecil
     n = np.arange(len(sten))
