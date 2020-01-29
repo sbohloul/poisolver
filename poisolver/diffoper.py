@@ -214,15 +214,16 @@ def findifmatsp(ngrid, d, p, h, axis):
     npts  = ngrid[axis]                      # size of grid along derivative axis    
     igrid = np.arange(nmat).reshape(ngrid)   # row-major indexing for grid points
     igrid = np.swapaxes(igrid, axis, 0)      # move the derivative axis to 0
-    fdmat = sps.lil_matrix((nmat, nmat), dtype=np.float64)
+    fdmat = sps.csr_matrix((nmat, nmat), dtype=np.float64)
     
     # [smax:-smax] points centeral findif with [-(d+p-1)/2, ..., (d+p-1)/2] stencil
     sten = range(-smax, smax+1)
     coef = findifcoef(sten, d)
     row  = igrid[smax:npts-smax].flatten()
     for ss, cc in zip(sten, coef):        
-        col = igrid[smax+ss:npts-smax+ss].flatten()    
-        fdmat[row, col] = cc
+        col = igrid[smax+ss:npts-smax+ss].flatten()  
+        tmp = sps.csr_matrix((cc*np.ones(col.size), (row, col)), shape=(nmat, nmat))           
+        fdmat += tmp
 
     # [0:smax] points forward findif with [0, 1, ..., (d+p-1)] stencil
     sten = range(d + p)
@@ -230,7 +231,8 @@ def findifmatsp(ngrid, d, p, h, axis):
     row  = igrid[0:smax].flatten()
     for ss, cc in zip(sten, coef):        
         col = igrid[ss:smax+ss].flatten()
-        fdmat[row, col] = cc
+        tmp = sps.csr_matrix((cc*np.ones(col.size), (row, col)), shape=(nmat, nmat))           
+        fdmat += tmp
 
     # [-smax:] points backward findif with [0, -1, ..., -(d+p-1)] stencil
     sten = range(0, -(d + p), -1)
@@ -238,7 +240,8 @@ def findifmatsp(ngrid, d, p, h, axis):
     row  = igrid[npts-smax:npts].flatten()
     for ss, cc in zip(sten, coef):    
         col = igrid[npts-smax+ss:npts+ss].flatten()
-        fdmat[row, col] = cc
+        tmp = sps.csr_matrix((cc*np.ones(col.size), (row, col)), shape=(nmat, nmat))           
+        fdmat += tmp
 
     # return fact * fdmat
     return fdmat / h**d         

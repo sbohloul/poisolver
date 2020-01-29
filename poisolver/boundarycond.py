@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.sparse as sps
 
 
 def getboundary(ngrid):
@@ -69,20 +70,26 @@ def applybc(fdmat, ngrid, bcvec=None, type='d'):
     >>> 
     """
 
+    # convert to sparse if not
+    issparse = sps.issparse(fdmat)
+    if issparse:
+        if not sps.isspmatrix_csr(fdmat):
+            fdmat = fdmat.tocsr()        
+    else:
+        fdmat = sps.csr_matrix(fdmat)
+       
     # index of interior and boundary points
-    indint, indbnd = getboundary(ngrid)
-    indint = indint.reshape((-1, 1))    # col vector
-    indbnd = indbnd.reshape((1, -1))    # row vector   
+    indint, indbnd = getboundary(ngrid)  
 
-    # to be substracted from rhs in Ax = b
-    if bcvec is not None:
-        if type == 'd':
-            # bcvec  = fdmat[indint, indbnd] @ bcvec
-            bcvec  = fdmat[indint, indbnd].dot(bcvec)
-
-    # apply bc to findif matrix        
+    # apply boundary condition
+    fdmat = fdmat[indint, :]    
     if type == 'd':
-        fdmat = fdmat[indint, indint.reshape((1, -1))]
+        if bcvec is not None:   # to be added to r.h.s of Ax = b
+            bcvec = fdmat[:, indbnd].dot(bcvec)
+     
+        fdmat = fdmat[:, indint]       
+        if not issparse:        # put back to dense format 
+            fdmat = fdmat.todense()                                   
 
     if bcvec is not None:
         return fdmat, bcvec  
